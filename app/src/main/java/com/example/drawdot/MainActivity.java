@@ -3,13 +3,10 @@ package com.example.drawdot;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
-import com.example.drawdot.Dots;
-
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -22,8 +19,6 @@ public class MainActivity extends AppCompatActivity {
     final Dots dotModel = new Dots();
 
     DotView dotView;
-
-    private LinearLayoutCompat root;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +54,17 @@ public class MainActivity extends AppCompatActivity {
                 dotView.invalidate();
             }
         });
+
+        dotView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (MotionEvent.ACTION_DOWN != motionEvent.getAction()) {
+                    return false;
+                }
+                dotModel.addDots(motionEvent.getX(), motionEvent.getY(), Color.CYAN, DOT_DIAMETER);
+                return true;
+            }
+        });
     }
 
     void makeDot(Dots dots, DotView view, int color) {
@@ -71,40 +77,44 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-//    private class DotsChangeListener{
-//        @Override
-//        void onDotsChange(){
-//            EditText editText = findViewById(R.id.text1);
-//            editText.setText(getLast);
-//        }
-//    }
+    private static final class TrackingTouchListener implements View.OnTouchListener {
+        private final Dots mDots;
 
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
-//        int measuredHeight = measureHeigt(heightMeasureSpec);
-//        int measuredWidth = measureWidth(widthMeasureSpec);
-//        setMeasuredDimension(measuredHeight, measuredWidth);
-//    }
+        private TrackingTouchListener(Dots mDots) {
+            this.mDots = mDots;
+        }
 
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    for (int i = 0, n = motionEvent.getHistorySize(); i < n; i++) {
+                        addDot(
+                                mDots,
+                                motionEvent.getHistoricalX(i),
+                                motionEvent.getHistoricalY(i),
+                                motionEvent.getHistoricalPressure(i),
+                                motionEvent.getHistoricalSize(i));
+                    }
+                    break;
+                default:
+                    return false;
+            }
+            addDot(
+                    mDots,
+                    motionEvent.getX(),
+                    motionEvent.getY(),
+                    motionEvent.getPressure(),
+                    motionEvent.getSize());
+            return true;
+        }
 
-//    private static final class TrackingTouchListener implements View.OnTouchListener{
-//        private final Dots mDots;
-//
-//        TrackingTouchListener(Dots dots){
-//            mDots = dots;
-//        }
-//        @Override
-//        public boolean onTouch(View viewm MotionEvent evt){
-//            switch (evt.getAction()){
-//                case MotionEvent.ACTION_DOWN: break;
-//                case MotionEvent.ACTION_MOVE:
-//                    for (int i = 0, n = evt.getHistorySize(); i < n; i++){
-//                        addDot(
-//                                mDots,
-//                                evt.
-//                        )
-//                    }
-//            }
-//        }
-//    }
+        private void addDot(Dots dots, float x, float y, float p, float s) {
+            mDots.addDots(x, y, Color.CYAN, (int) ((p * s * DOT_DIAMETER) + 1));
+        }
+    }
 }
+
 
