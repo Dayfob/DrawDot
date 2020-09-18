@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Alikhans DrawDot</string>
+    <string name="defaultLeftText">X coord</string>
+    <string name="defaultRightText">Y coord</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+</resources>
